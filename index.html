@@ -2,33 +2,63 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>Scotty's Weekly Schedule</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f0; color: #1a1a1a; padding: 0.75rem 1rem; display: flex; flex-direction: column; height: 100vh; }
-  h1 { font-size: 18px; font-weight: 600; margin-bottom: 2px; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .subtitle { font-size: 12px; color: #777; margin-bottom: 0.4rem; }
-  .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 0.4rem; }
-  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
-  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-  .grid-wrap { flex: 1; overflow-y: auto; overflow-x: auto; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); background: #fff; min-height: 0; }
-  .schedule-grid { display: flex; min-width: 720px; }
-  .time-axis { width: 46px; flex-shrink: 0; position: relative; }
-  .time-label { position: absolute; right: 6px; font-size: 10px; color: #bbb; transform: translateY(-50%); white-space: nowrap; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f0; color: #1a1a1a; }
+
+  /* ── Header ── */
+  .top-bar { padding: 0.6rem 0.75rem 0.3rem; }
+  h1 { font-size: 14px; font-weight: 700; color: #1a1a1a; line-height: 1.3; }
+  .subtitle { font-size: 11px; color: #888; margin-top: 2px; margin-bottom: 0.35rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 0.35rem; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #555; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── Day tabs (mobile) ── */
+  .day-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid #eee; background: #fafafa; scrollbar-width: none; }
+  .day-tabs::-webkit-scrollbar { display: none; }
+  .day-tab { flex-shrink: 0; padding: 8px 14px; font-size: 12px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap; }
+  .day-tab.active { color: #1d4ed8; border-bottom-color: #3b82f6; background: #eff6ff; }
+  .day-tab.today-tab { color: #059669; }
+  .day-tab.today-tab.active { color: #1d4ed8; }
+
+  /* ── Desktop grid (hidden on mobile) ── */
+  .desktop-view { display: none; }
+  .grid-wrap { flex: 1; overflow-y: auto; overflow-x: auto; border-radius: 0 0 10px 10px; background: #fff; }
+  .schedule-grid { display: flex; }
+  .time-axis { width: 42px; flex-shrink: 0; position: relative; }
+  .time-label { position: absolute; right: 5px; font-size: 9px; color: #ccc; transform: translateY(-50%); white-space: nowrap; }
   .days-container { flex: 1; display: flex; }
-  .day-col { flex: 1; border-left: 1px solid #f0f0f0; position: relative; }
+  .day-col { flex: 1; border-left: 1px solid #f0f0f0; position: relative; min-width: 80px; }
   .day-col.today { background: #f0f7ff; border-left: 3px solid #3b82f6 !important; border-right: 3px solid #3b82f6; }
   .hour-line { position: absolute; left: 0; right: 0; border-top: 1px solid #f0f0f0; }
-  .hour-line.half { border-top: 1px dashed #f5f5f5; }
-  .headers { display: flex; min-width: 720px; border-bottom: 1px solid #eee; background: #fafafa; border-radius: 10px 10px 0 0; }
-  .header-spacer { width: 46px; flex-shrink: 0; }
-  .header-day { flex: 1; text-align: center; font-size: 13px; font-weight: 600; padding: 9px 4px 7px; color: #555; }
-  .header-day.today { background: #eff6ff; color: #1d4ed8; border-bottom: 3px solid #3b82f6; }
+  .hour-line.half { border-top: 1px dashed #f7f7f7; }
+  .desktop-headers { display: flex; border-bottom: 1px solid #eee; background: #fafafa; }
+  .dh-spacer { width: 42px; flex-shrink: 0; }
+  .dh-day { flex: 1; text-align: center; font-size: 12px; font-weight: 600; padding: 8px 4px 6px; min-width: 80px; }
+  .dh-day.today { background: #eff6ff; color: #1d4ed8; border-bottom: 3px solid #3b82f6; }
+
+  /* ── Mobile single-day view ── */
+  .mobile-view { padding: 0 0.75rem 1rem; }
+  .mobile-day-header { font-size: 13px; font-weight: 700; color: #1a1a1a; padding: 0.6rem 0 0.4rem; }
+  .mobile-timeline { position: relative; padding-left: 52px; }
+  .mobile-hour-row { position: relative; min-height: 48px; border-top: 1px solid #f0f0f0; }
+  .mobile-hour-label { position: absolute; left: -52px; top: -8px; font-size: 10px; color: #bbb; width: 44px; text-align: right; }
+  .mobile-block { border-radius: 7px; padding: 5px 8px; font-size: 12px; font-weight: 600; line-height: 1.4; cursor: pointer; margin-bottom: 3px; }
+  .mobile-block .tl { font-size: 10px; font-weight: 400; opacity: 0.75; display: block; }
+  .mobile-block-school   { background: #dbeafe; color: #1e40af; border-left: 4px solid #3b82f6; }
+  .mobile-block-car      { background: #e5e7eb; color: #374151; border-left: 4px solid #9ca3af; }
+  .mobile-block-carer    { background: #fce7f3; color: #9d174d; border-left: 4px solid #ec4899; }
+  .mobile-block-activity { background: #fef3c7; color: #92400e; border-left: 4px solid #f59e0b; }
+  .mobile-block-routine  { background: #dcfce7; color: #166534; border-left: 4px solid #4ade80; }
+  .mobile-add-btn { display: inline-block; margin-top: 0.5rem; padding: 8px 16px; border: 1px dashed #ccc; border-radius: 8px; font-size: 12px; color: #aaa; cursor: pointer; }
+  .mobile-add-btn:hover { background: #f5f5f5; }
+
+  /* ── Shared block styles (desktop) ── */
   .block { position: absolute; left: 2px; right: 2px; border-radius: 5px; padding: 3px 5px; font-size: 10px; font-weight: 600; line-height: 1.3; cursor: pointer; overflow: hidden; transition: opacity 0.15s; }
   .block:hover { opacity: 0.78; }
   .block-school   { background: #dbeafe; color: #1e40af; border-left: 3px solid #3b82f6; }
@@ -37,54 +67,73 @@
   .block-activity { background: #fef3c7; color: #92400e; border-left: 3px solid #f59e0b; }
   .block-routine  { background: #dcfce7; color: #166534; border-left: 3px solid #4ade80; }
   .block .tl { font-weight: 400; opacity: 0.75; font-size: 9px; display: block; }
-  .block.overridden { opacity: 0.9; }
   .add-btn { position: absolute; bottom: 3px; right: 4px; font-size: 10px; color: #ccc; cursor: pointer; padding: 1px 4px; border-radius: 3px; user-select: none; z-index: 10; }
   .add-btn:hover { background: #f0f0f0; color: #888; }
 
-  /* Modal base */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; }
+  /* ── Modals ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
   .modal-overlay.open { display: flex; }
-  .modal { background: #fff; border-radius: 14px; padding: 1.5rem; width: 320px; max-width: 94vw; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
-  .modal h2 { font-size: 16px; font-weight: 600; margin-bottom: 0.75rem; color: #1a1a1a; }
-  .modal label { font-size: 12px; color: #666; display: block; margin: 10px 0 4px; }
+  .modal { background: #fff; border-radius: 14px; padding: 1.25rem; width: 100%; max-width: 340px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+  .modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 0.75rem; color: #1a1a1a; }
+  .modal label { font-size: 12px; color: #666; display: block; margin: 8px 0 3px; }
   .modal input[type=text], .modal input[type=time], .modal select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; outline: none; }
-  .modal input:focus, .modal select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-  .modal-btns { display: flex; gap: 8px; margin-top: 1.25rem; align-items: center; flex-wrap: wrap; }
-  .btn { border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; border: none; }
-  .btn-cancel  { background: transparent; border: 1px solid #ddd; color: #666; }
-  .btn-cancel:hover { background: #f5f5f5; }
-  .btn-save    { background: #3b82f6; color: #fff; font-weight: 600; margin-left: auto; }
-  .btn-save:hover { background: #2563eb; }
-  .btn-delete  { background: transparent; border: 1px solid #fca5a5; color: #dc2626; }
-  .btn-delete:hover { background: #fef2f2; }
-
-  /* Scope picker modal */
-  .scope-modal { background: #fff; border-radius: 14px; padding: 1.5rem; width: 300px; max-width: 94vw; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
-  .scope-modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 1rem; color: #1a1a1a; }
-  .scope-btn { display: block; width: 100%; text-align: left; padding: 12px 14px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 14px; cursor: pointer; margin-bottom: 8px; color: #1a1a1a; }
-  .scope-btn:hover { background: #f0f7ff; border-color: #3b82f6; color: #1d4ed8; }
+  .modal input:focus, .modal select:focus { border-color: #3b82f6; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 1rem; align-items: center; }
+  .btn { border-radius: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; border: none; }
+  .btn-cancel { background: transparent; border: 1px solid #ddd; color: #666; }
+  .btn-save { background: #3b82f6; color: #fff; font-weight: 600; margin-left: auto; }
+  .btn-delete { background: transparent; border: 1px solid #fca5a5; color: #dc2626; }
+  .scope-modal { background: #fff; border-radius: 14px; padding: 1.25rem; width: 100%; max-width: 320px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+  .scope-modal h2 { font-size: 14px; font-weight: 600; margin-bottom: 0.9rem; color: #1a1a1a; }
+  .scope-btn { display: block; width: 100%; text-align: left; padding: 11px 14px; border-radius: 8px; border: 1px solid #ddd; background: #fff; font-size: 13px; cursor: pointer; margin-bottom: 8px; color: #1a1a1a; }
+  .scope-btn:hover { background: #f0f7ff; border-color: #3b82f6; }
   .scope-btn .scope-sub { display: block; font-size: 11px; color: #999; margin-top: 2px; }
-  .scope-cancel { display: block; width: 100%; text-align: center; padding: 8px; border: none; background: none; color: #999; font-size: 13px; cursor: pointer; margin-top: 4px; }
-  .scope-cancel:hover { color: #555; }
+  .scope-cancel { display: block; width: 100%; text-align: center; padding: 8px; border: none; background: none; color: #999; font-size: 13px; cursor: pointer; }
+
+  /* ── Responsive ── */
+  @media (min-width: 700px) {
+    body { display: flex; flex-direction: column; height: 100vh; }
+    .top-bar { padding: 0.75rem 1rem 0.3rem; }
+    h1 { font-size: 17px; }
+    .day-tabs { display: none; }
+    .mobile-view { display: none !important; }
+    .desktop-view { display: flex; flex-direction: column; flex: 1; min-height: 0; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin: 0 0 0.5rem; overflow: hidden; }
+    .grid-wrap { flex: 1; overflow-y: auto; overflow-x: auto; min-height: 0; }
+  }
+  @media (max-width: 699px) {
+    .desktop-view { display: none !important; }
+    .mobile-view { display: block; }
+  }
 </style>
 </head>
 <body>
 
-<h1 id="page-title">📅 Scotty's weekly schedule</h1>
-<p class="subtitle">Click any block to edit · Click + to add</p>
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border:1.5px solid #3b82f6"></div>School</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb;border:1.5px solid #9ca3af"></div>Car</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#fce7f3;border:1.5px solid #ec4899"></div>Carer</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border:1.5px solid #f59e0b"></div>Activity</div>
-  <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border:1.5px solid #4ade80"></div>Routine</div>
+<div class="top-bar">
+  <h1 id="page-title">📅 Scotty's weekly schedule</h1>
+  <p class="subtitle">Tap any block to edit · Tap + to add</p>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;border:1.5px solid #3b82f6"></div>School</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e5e7eb;border:1.5px solid #9ca3af"></div>Car</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fce7f3;border:1.5px solid #ec4899"></div>Carer</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;border:1.5px solid #f59e0b"></div>Activity</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;border:1.5px solid #4ade80"></div>Routine</div>
+  </div>
 </div>
 
-<div class="grid-wrap" id="grid-wrap">
-  <div class="headers" id="headers"></div>
-  <div class="schedule-grid">
-    <div class="time-axis" id="time-axis"></div>
-    <div class="days-container" id="days-container"></div>
+<!-- Mobile day tabs -->
+<div class="day-tabs" id="day-tabs"></div>
+
+<!-- Mobile single-day view -->
+<div class="mobile-view" id="mobile-view"></div>
+
+<!-- Desktop grid -->
+<div class="desktop-view" id="desktop-view">
+  <div class="desktop-headers" id="desktop-headers"></div>
+  <div class="grid-wrap">
+    <div class="schedule-grid">
+      <div class="time-axis" id="time-axis"></div>
+      <div class="days-container" id="days-container"></div>
+    </div>
   </div>
 </div>
 
@@ -111,18 +160,12 @@
   </div>
 </div>
 
-<!-- Scope picker modal -->
+<!-- Scope edit modal -->
 <div class="modal-overlay" id="scope-modal">
   <div class="scope-modal">
     <h2 id="scope-title">Edit recurring event</h2>
-    <button class="scope-btn" id="scope-once">
-      Change this event only
-      <span class="scope-sub">Only this week's occurrence will be changed</span>
-    </button>
-    <button class="scope-btn" id="scope-series">
-      Change the series
-      <span class="scope-sub">All weekly occurrences will be updated</span>
-    </button>
+    <button class="scope-btn" id="scope-once">Change this event only<span class="scope-sub">Only this week's occurrence will be changed</span></button>
+    <button class="scope-btn" id="scope-series">Change the series<span class="scope-sub">All weekly occurrences will be updated</span></button>
     <button class="scope-cancel" id="scope-cancel">Cancel</button>
   </div>
 </div>
@@ -131,14 +174,8 @@
 <div class="modal-overlay" id="delete-modal">
   <div class="scope-modal">
     <h2>Delete recurring event</h2>
-    <button class="scope-btn" id="del-once">
-      Delete this event only
-      <span class="scope-sub">Only this week's occurrence will be removed</span>
-    </button>
-    <button class="scope-btn" id="del-series">
-      Delete the series
-      <span class="scope-sub">This event will be removed from every week</span>
-    </button>
+    <button class="scope-btn" id="del-once">Delete this event only<span class="scope-sub">Only this week's occurrence will be removed</span></button>
+    <button class="scope-btn" id="del-series">Delete the series<span class="scope-sub">Removed from every week permanently</span></button>
     <button class="scope-cancel" id="del-cancel">Cancel</button>
   </div>
 </div>
@@ -146,15 +183,15 @@
 <script>
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const DAY_COLORS = ['#7c3aed','#0891b2','#059669','#d97706','#dc2626','#db2777','#2563eb'];
-const GRID_START = 6 * 60, GRID_END = 22 * 60, GRID_MINS = GRID_END - GRID_START;
+const GRID_START = 6*60, GRID_END = 22*60, GRID_MINS = GRID_END - GRID_START;
 const PPM = 0.75;
 
-function toMin(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
-function fmt(t){ let [h,m]=t.split(':').map(Number); const ap=h>=12?'pm':'am'; h=h%12||12; return h+(m?':'+String(m).padStart(2,'0'):'')+ap; }
+function toMin(t){ const[h,m]=t.split(':').map(Number); return h*60+m; }
+function fmt(t){ let[h,m]=t.split(':').map(Number); const ap=h>=12?'pm':'am'; h=h%12||12; return h+(m?':'+String(m).padStart(2,'0'):'')+ap; }
 function minToTop(t){ return (toMin(t)-GRID_START)*PPM; }
 function minToHeight(s,e){ return (toMin(e)-toMin(s))*PPM; }
 
-// Date
+// Date setup
 const now = new Date();
 const jsDay = now.getDay();
 const dayMap = [6,0,1,2,3,4,5];
@@ -163,129 +200,75 @@ const monday = new Date(now);
 monday.setDate(now.getDate()-(jsDay===0?6:jsDay-1));
 const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 document.getElementById('page-title').textContent =
-  '📅 Scotty\'s weekly schedule — week commencing Monday '+
+  '📅 Scotty\'s weekly schedule — w/c '+
   String(monday.getDate()).padStart(2,'0')+' '+months[monday.getMonth()]+' '+monday.getFullYear();
 
-// ── Data model ─────────────────────────────────────────────
-// Each block has a seriesId (recurring) or is standalone (one-off).
-// overrides: { seriesId_day: { ...overrideProps } } — for "change once"
-// deletedOnce: Set of "seriesId_day" — for "delete this event only"
+let activeDay = todayName;
 
-let uid = 1;
-let seriesUid = 100;
-function mkSeries(days, label, start, end, cat){
-  const sid = seriesUid++;
-  return days.map(day => ({ id: uid++, seriesId: sid, day, label, start, end, cat }));
-}
-function mkOne(day, label, start, end, cat){
-  return { id: uid++, seriesId: null, day, label, start, end, cat };
-}
+// ── Data ───────────────────────────────────────────────────
+let uid=1, seriesUid=100;
+function mkS(days,label,start,end,cat){ const sid=seriesUid++; return days.map(day=>({id:uid++,seriesId:sid,day,label,start,end,cat})); }
+function mk1(day,label,start,end,cat){ return {id:uid++,seriesId:null,day,label,start,end,cat}; }
 
-// Base recurring blocks
 let blocks = [
-  // Morning routine — all 7 days
-  ...mkSeries(['Mon','Tue','Wed','Thu','Fri'],'Morning routine','06:30','07:45','routine'),
-
+  // Morning routine ALL 7 days
+  ...mkS(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],'Morning routine','06:30','07:45','routine'),
   // Car pickup Mon–Fri
-  ...mkSeries(['Mon','Tue','Wed','Thu','Fri'],'Car pickup','07:45','08:15','car'),
-
+  ...mkS(['Mon','Tue','Wed','Thu','Fri'],'Car pickup','07:45','08:15','car'),
   // School Mon–Thu
-  ...mkSeries(['Mon','Tue','Wed','Thu'],'School','08:15','15:00','school'),
-
-  // School Fri (different end time — separate series)
-  mkOne('Fri','School','08:15','14:00','school'),
-
+  ...mkS(['Mon','Tue','Wed','Thu'],'School','08:15','15:00','school'),
+  // School Fri
+  mk1('Fri','School','08:15','14:00','school'),
   // Car drop-off Mon–Thu
-  ...mkSeries(['Mon','Tue','Wed','Thu'],'Car drop-off','15:00','15:20','car'),
-
+  ...mkS(['Mon','Tue','Wed','Thu'],'Car drop-off','15:00','15:20','car'),
   // Car drop-off Fri
-  mkOne('Fri','Car drop-off','14:00','14:20','car'),
-
+  mk1('Fri','Car drop-off','14:00','14:20','car'),
   // Sharon Mon/Tue/Thu
-  ...mkSeries(['Mon','Tue','Thu'],'Sharon','15:20','18:00','carer'),
-
+  ...mkS(['Mon','Tue','Thu'],'Sharon','15:20','18:00','carer'),
   // Ibrahim Wed/Fri
-  ...mkSeries(['Wed','Fri'],'Ibrahim','15:30','16:30','carer'),
-
-  // Clara Fri evening + Sat
-  mkOne('Fri','Clara','19:00','22:00','carer'),
-  mkOne('Sat','Clara','13:00','18:00','carer'),
-
-  // Fulham FC Mon + Sat
-  ...mkSeries(['Mon','Sat'],'Fulham FC','18:00','19:00','activity'),
-  // Fix Sat Fulham time
-  mkOne('Sat','Fulham FC','09:30','10:30','activity'),
-
-  // Football w/ Costa Sun
-  mkOne('Sun','Football w/ Costa','10:00','11:00','activity'),
-
-  // Ibrahim Sun
-  mkOne('Sun','Ibrahim','08:00','09:00','carer'),
-
-  // Luis Sun
-  mkOne('Sun','Luis','14:00','18:00','carer'),
-
-  // Evening routine all days
-  ...mkSeries(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],'Evening routine','19:30','21:00','routine'),
+  ...mkS(['Wed','Fri'],'Ibrahim','15:30','16:30','carer'),
+  // Clara
+  mk1('Fri','Clara','19:00','22:00','carer'),
+  mk1('Sat','Clara','13:00','18:00','carer'),
+  // Activities
+  mk1('Mon','Fulham FC','18:00','19:00','activity'),
+  mk1('Sat','Fulham FC','09:30','10:30','activity'),
+  mk1('Sun','Football w/ Costa','10:00','11:00','activity'),
+  // Ibrahim/Luis Sun
+  mk1('Sun','Ibrahim','08:00','09:00','carer'),
+  mk1('Sun','Luis','14:00','18:00','carer'),
+  // Evening routine ALL 7 days
+  ...mkS(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],'Evening routine','19:30','21:00','routine'),
 ];
 
-// Remove duplicate Sat Fulham (series added Mon+Sat, then standalone Sat added — remove series Sat)
-// Cleaner: rebuild with explicit series
-uid = 1; seriesUid = 100;
-blocks = [
-  ...mkSeries(['Mon','Tue','Wed','Thu','Fri'],'Morning routine','06:30','07:45','routine'),
-  ...mkSeries(['Mon','Tue','Wed','Thu','Fri'],'Car pickup','07:45','08:15','car'),
-  ...mkSeries(['Mon','Tue','Wed','Thu'],'School','08:15','15:00','school'),
-  mkOne('Fri','School','08:15','14:00','school'),
-  ...mkSeries(['Mon','Tue','Wed','Thu'],'Car drop-off','15:00','15:20','car'),
-  mkOne('Fri','Car drop-off','14:00','14:20','car'),
-  ...mkSeries(['Mon','Tue','Thu'],'Sharon','15:20','18:00','carer'),
-  ...mkSeries(['Wed','Fri'],'Ibrahim','15:30','16:30','carer'),
-  mkOne('Fri','Clara','19:00','22:00','carer'),
-  mkOne('Sat','Clara','13:00','18:00','carer'),
-  mkOne('Mon','Fulham FC','18:00','19:00','activity'),
-  mkOne('Sat','Fulham FC','09:30','10:30','activity'),
-  mkOne('Sun','Football w/ Costa','10:00','11:00','activity'),
-  mkOne('Sun','Ibrahim','08:00','09:00','carer'),
-  mkOne('Sun','Luis','14:00','18:00','carer'),
-  ...mkSeries(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],'Evening routine','19:30','21:00','routine'),
-];
+let nextId=5000, editingId=null, addingDay=null, pendingEdit=null, pendingDelete=null;
+let overrides={}, deletedOnce=new Set();
 
-// Overrides: key = "seriesId_day", value = partial block props (or null = deleted)
-let overrides = {}; // { "sid_day": { label, start, end, cat } }
-let deletedOnce = new Set(); // "sid_day"
-
-let nextId = 5000;
-let editingId = null, addingDay = null;
-let pendingEdit = null, pendingDelete = null;
-
-function overrideKey(b){ return b.seriesId ? b.seriesId+'_'+b.day : null; }
-
-function getEffectiveBlock(b){
+function oKey(b){ return b.seriesId?b.seriesId+'_'+b.day:null; }
+function getEff(b){
   if(!b.seriesId) return b;
-  const key = overrideKey(b);
-  if(deletedOnce.has(key)) return null;
-  if(overrides[key]) return { ...b, ...overrides[key] };
+  const k=oKey(b);
+  if(deletedOnce.has(k)) return null;
+  if(overrides[k]) return {...b,...overrides[k]};
   return b;
 }
 
-// ── Render ─────────────────────────────────────────────────
-function render(){
-  const totalH = GRID_MINS * PPM;
+// ── Desktop render ─────────────────────────────────────────
+function renderDesktop(){
+  const totalH=GRID_MINS*PPM;
+  const dh=document.getElementById('desktop-headers');
+  dh.innerHTML='<div class="dh-spacer"></div>'+
+    DAYS.map((d,i)=>`<div class="dh-day${d===todayName?' today':''}" style="color:${DAY_COLORS[i]}">${d}</div>`).join('');
 
-  const headers = document.getElementById('headers');
-  headers.innerHTML = '<div class="header-spacer"></div>'+
-    DAYS.map((d,i)=>`<div class="header-day${d===todayName?' today':''}" style="color:${DAY_COLORS[i]}">${d}</div>`).join('');
-
-  const axis = document.getElementById('time-axis');
-  axis.style.height = totalH+'px'; axis.style.position='relative';
-  let axisHTML='';
+  const ax=document.getElementById('time-axis');
+  ax.style.height=totalH+'px'; ax.style.position='relative';
+  let ah='';
   for(let h=GRID_START/60;h<=GRID_END/60;h++){
     const top=(h*60-GRID_START)*PPM;
-    const label=h<12?h+'am':h===12?'12pm':(h-12)+'pm';
-    axisHTML+=`<div class="time-label" style="top:${top}px">${label}</div>`;
+    const lbl=h<12?h+'am':h===12?'12pm':(h-12)+'pm';
+    ah+=`<div class="time-label" style="top:${top}px">${lbl}</div>`;
   }
-  axis.innerHTML=axisHTML;
+  ax.innerHTML=ah;
 
   const dc=document.getElementById('days-container');
   dc.innerHTML='';
@@ -293,46 +276,72 @@ function render(){
     const col=document.createElement('div');
     col.className='day-col'+(day===todayName?' today':'');
     col.style.height=totalH+'px'; col.style.position='relative';
-
     for(let h=GRID_START/60;h<=GRID_END/60;h++){
       const top=(h*60-GRID_START)*PPM;
-      const line=document.createElement('div');
-      line.className='hour-line'; line.style.top=top+'px';
-      col.appendChild(line);
-      if(h<GRID_END/60){
-        const hl=document.createElement('div');
-        hl.className='hour-line half'; hl.style.top=(top+30*PPM)+'px';
-        col.appendChild(hl);
-      }
+      const l=document.createElement('div'); l.className='hour-line'; l.style.top=top+'px'; col.appendChild(l);
+      if(h<GRID_END/60){ const hl=document.createElement('div'); hl.className='hour-line half'; hl.style.top=(top+30*PPM)+'px'; col.appendChild(hl); }
     }
-
     blocks.filter(bk=>bk.day===day).forEach(bk=>{
-      const eff=getEffectiveBlock(bk);
-      if(!eff) return;
-      const top=minToTop(eff.start);
-      const height=minToHeight(eff.start,eff.end);
-      const dur=toMin(eff.end)-toMin(eff.start);
+      const eff=getEff(bk); if(!eff) return;
+      const top=minToTop(eff.start), height=minToHeight(eff.start,eff.end), dur=toMin(eff.end)-toMin(eff.start);
       const div=document.createElement('div');
-      div.className='block block-'+eff.cat+(bk.seriesId&&overrides[overrideKey(bk)]?' overridden':'');
+      div.className='block block-'+eff.cat;
       div.style.top=top+'px'; div.style.height=height+'px';
       div.innerHTML=eff.label+(dur>=20?`<span class="tl">${fmt(eff.start)}–${fmt(eff.end)}</span>`:'');
       div.onclick=()=>openEdit(bk.id);
       col.appendChild(div);
     });
-
-    const addBtn=document.createElement('div');
-    addBtn.className='add-btn'; addBtn.textContent='＋';
-    addBtn.onclick=()=>openAdd(day);
-    col.appendChild(addBtn);
+    const ab=document.createElement('div'); ab.className='add-btn'; ab.textContent='＋'; ab.onclick=()=>openAdd(day); col.appendChild(ab);
     dc.appendChild(col);
   });
 }
 
-// ── Edit flow ──────────────────────────────────────────────
+// ── Mobile render ──────────────────────────────────────────
+function renderMobileTabs(){
+  const tabs=document.getElementById('day-tabs');
+  tabs.innerHTML=DAYS.map((d,i)=>{
+    const isToday=d===todayName;
+    const isActive=d===activeDay;
+    return `<div class="day-tab${isActive?' active':''}${isToday?' today-tab':''}" style="${isActive?'':'color:'+DAY_COLORS[i]}" onclick="setActiveDay('${d}')">${d}${isToday?' ●':''}</div>`;
+  }).join('');
+}
+
+function renderMobileDay(){
+  const mv=document.getElementById('mobile-view');
+  const dayBlocks=blocks.filter(bk=>bk.day===activeDay)
+    .map(bk=>({bk,eff:getEff(bk)})).filter(x=>x.eff)
+    .sort((a,b)=>toMin(a.eff.start)-toMin(b.eff.start));
+
+  let html=`<div class="mobile-day-header">${activeDay}${activeDay===todayName?' — Today':''}</div><div class="mobile-timeline">`;
+  // Hour markers
+  for(let h=GRID_START/60;h<=GRID_END/60;h++){
+    const lbl=h<12?h+'am':h===12?'12pm':(h-12)+'pm';
+    html+=`<div class="mobile-hour-row"><div class="mobile-hour-label">${lbl}</div></div>`;
+  }
+  html+='</div>';
+
+  // Blocks as list instead of absolutely positioned
+  html+=`<div style="margin-top:0.5rem;">`;
+  dayBlocks.forEach(({bk,eff})=>{
+    const dur=toMin(eff.end)-toMin(eff.start);
+    html+=`<div class="mobile-block mobile-block-${eff.cat}" onclick="openEdit(${bk.id})">
+      ${eff.label}
+      <span class="tl">${fmt(eff.start)}–${fmt(eff.end)}</span>
+    </div>`;
+  });
+  html+=`</div>`;
+  html+=`<div class="mobile-add-btn" onclick="openAdd('${activeDay}')">＋ Add block</div>`;
+  mv.innerHTML=html;
+}
+
+function setActiveDay(d){ activeDay=d; renderMobileTabs(); renderMobileDay(); }
+
+function render(){ renderDesktop(); renderMobileTabs(); renderMobileDay(); }
+
+// ── Edit / Delete ──────────────────────────────────────────
 function openEdit(id){
   editingId=id; addingDay=null;
-  const bk=blocks.find(x=>x.id===id);
-  const eff=getEffectiveBlock(bk);
+  const bk=blocks.find(x=>x.id===id), eff=getEff(bk);
   document.getElementById('edit-title').textContent='Edit block';
   document.getElementById('edit-label').value=eff.label;
   document.getElementById('edit-start').value=eff.start;
@@ -360,19 +369,14 @@ document.getElementById('btn-save').onclick=()=>{
   const end=document.getElementById('edit-end').value;
   const cat=document.getElementById('edit-cat').value;
   if(!editingId){
-    // New one-off block
     blocks.push({id:nextId++,seriesId:null,day:addingDay,label,start,end,cat});
-    document.getElementById('edit-modal').classList.remove('open');
-    render(); return;
+    document.getElementById('edit-modal').classList.remove('open'); render(); return;
   }
   const bk=blocks.find(x=>x.id===editingId);
   if(!bk.seriesId){
-    // One-off: just update directly
     bk.label=label; bk.start=start; bk.end=end; bk.cat=cat;
-    document.getElementById('edit-modal').classList.remove('open');
-    render(); return;
+    document.getElementById('edit-modal').classList.remove('open'); render(); return;
   }
-  // Recurring: ask scope
   pendingEdit={id:editingId,label,start,end,cat};
   document.getElementById('edit-modal').classList.remove('open');
   document.getElementById('scope-title').textContent='Edit "'+label+'"';
@@ -380,55 +384,36 @@ document.getElementById('btn-save').onclick=()=>{
 };
 
 document.getElementById('scope-cancel').onclick=()=>document.getElementById('scope-modal').classList.remove('open');
-
 document.getElementById('scope-once').onclick=()=>{
-  const {id,label,start,end,cat}=pendingEdit;
+  const{id,label,start,end,cat}=pendingEdit;
   const bk=blocks.find(x=>x.id===id);
-  overrides[overrideKey(bk)]={label,start,end,cat};
-  document.getElementById('scope-modal').classList.remove('open');
-  render();
+  overrides[oKey(bk)]={label,start,end,cat};
+  document.getElementById('scope-modal').classList.remove('open'); render();
 };
-
 document.getElementById('scope-series').onclick=()=>{
-  const {id,label,start,end,cat}=pendingEdit;
+  const{id,label,start,end,cat}=pendingEdit;
   const bk=blocks.find(x=>x.id===id);
-  const sid=bk.seriesId;
-  // Update all blocks in this series and clear any per-day overrides
-  blocks.filter(x=>x.seriesId===sid).forEach(x=>{
-    x.label=label; x.start=start; x.end=end; x.cat=cat;
-    delete overrides[overrideKey(x)];
-  });
-  document.getElementById('scope-modal').classList.remove('open');
-  render();
+  blocks.filter(x=>x.seriesId===bk.seriesId).forEach(x=>{ x.label=label;x.start=start;x.end=end;x.cat=cat; delete overrides[oKey(x)]; });
+  document.getElementById('scope-modal').classList.remove('open'); render();
 };
 
-// ── Delete flow ─────────────────────────────────────────────
 document.getElementById('btn-delete').onclick=()=>{
   const bk=blocks.find(x=>x.id===editingId);
   document.getElementById('edit-modal').classList.remove('open');
-  if(!bk.seriesId){
-    blocks=blocks.filter(x=>x.id!==editingId);
-    render(); return;
-  }
+  if(!bk.seriesId){ blocks=blocks.filter(x=>x.id!==editingId); render(); return; }
   pendingDelete=editingId;
   document.getElementById('delete-modal').classList.add('open');
 };
-
 document.getElementById('del-cancel').onclick=()=>document.getElementById('delete-modal').classList.remove('open');
-
 document.getElementById('del-once').onclick=()=>{
   const bk=blocks.find(x=>x.id===pendingDelete);
-  deletedOnce.add(overrideKey(bk));
-  document.getElementById('delete-modal').classList.remove('open');
-  render();
+  deletedOnce.add(oKey(bk));
+  document.getElementById('delete-modal').classList.remove('open'); render();
 };
-
 document.getElementById('del-series').onclick=()=>{
   const bk=blocks.find(x=>x.id===pendingDelete);
-  const sid=bk.seriesId;
-  blocks=blocks.filter(x=>x.seriesId!==sid);
-  document.getElementById('delete-modal').classList.remove('open');
-  render();
+  blocks=blocks.filter(x=>x.seriesId!==bk.seriesId);
+  document.getElementById('delete-modal').classList.remove('open'); render();
 };
 
 render();
