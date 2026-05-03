@@ -121,7 +121,7 @@ const GRID_END   = 22 * 60;  // 1320 min
 const GRID_MINS  = GRID_END - GRID_START; // 960
 
 // Fixed pixels-per-minute — everything calculated from this
-const PPM = 1.5; // 1.5px per minute → 960min × 1.5 = 1440px tall grid
+const PPM = 1.125; // 25% shorter than 1.5 → 960min × 1.125 = 1080px tall grid
 
 function toMin(t) {
   const [h, m] = t.split(':').map(Number);
